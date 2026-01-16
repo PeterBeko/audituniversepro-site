@@ -425,3 +425,95 @@ summary:focus-visible {
     outline-offset: 3px;
     border-radius: 6px;
 }
+
+/* Utilities */
+.visually-hidden {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    border: 0;
+}
+
+/* Video Section */
+#videok {
+    padding: 4rem 0;
+    background-color: var(--color-bg);
+}
+
+.video-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 2rem;
+    margin-top: 2rem;
+}
+
+.video-card {
+    background-color: var(--color-surface);
+    border-radius: var(--radius-md);
+    box-shadow: var(--shadow-sm);
+    overflow: hidden;
+    border: 1px solid var(--color-border);
+    display: flex;
+    flex-direction: column;
+}
+
+.video-wrapper {
+    position: relative;
+    padding-bottom: 56.25%;
+    /* 16:9 Aspect Ratio */
+    height: 0;
+    overflow: hidden;
+    background-color: #000;
+}
+
+.video-wrapper iframe {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    border: 0;
+}
+
+.video-card h3 {
+    padding: 1rem;
+    font-size: 1.1rem;
+    margin: 0;
+    line-height: 1.4;
+    color: var(--color-text-main);
+}
+
+/* Header Logo Adjustment */
+.logo {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.logo-icon {
+    width: 40px;
+    height: 40px;
+    object-fit: contain;
+    border-radius: 8px;
+}
+
+/* Footer Link Adjustment */
+.site-footer a {
+    color: var(--color-text-main);
+    text-decoration: underline;
+    text-decoration-color: var(--color-border);
+    text-underline-offset: 4px;
+    transition: color 0.2s, text-decoration-color 0.2s;
+    margin-bottom: 0.5rem;
+    display: inline-block;
+}
+
+.site-footer a:hover {
+    color: var(--color-primary);
+    text-decoration-color: var(--color-primary);
+}
