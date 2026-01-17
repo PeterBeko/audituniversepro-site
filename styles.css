@@ -490,16 +490,22 @@ summary:focus-visible {
 
 /* Header Logo Adjustment */
 .logo {
-    display: flex;
+    display: inline-flex;
     align-items: center;
-    gap: 0.5rem;
+    gap: 10px;
+    text-decoration: none;
 }
 
 .logo-icon {
     width: 40px;
     height: 40px;
     object-fit: contain;
-    border-radius: 8px;
+    border-radius: 10px;
+    display: block;
+}
+
+.logo-text {
+    font-weight: 700;
 }
 
 /* Footer Link Adjustment */
