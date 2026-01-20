@@ -30,6 +30,8 @@ body {
     color: var(--color-text-main);
     line-height: 1.6;
     -webkit-font-smoothing: antialiased;
+    overflow-wrap: break-word;
+    /* Prevent long words breaking layout */
 }
 
 img {
@@ -399,24 +401,7 @@ details[open] summary::after {
     font-size: 0.875rem;
 }
 
-/* Responsive Adjustments */
-@media (max-width: 768px) {
-    h1 {
-        font-size: 2rem;
-    }
 
-    h2 {
-        font-size: 1.75rem;
-    }
-
-    .process-steps {
-        grid-template-columns: 1fr;
-    }
-
-    .service-details {
-        grid-template-columns: 1fr;
-    }
-}
 
 a:focus-visible,
 .btn:focus-visible,
@@ -522,4 +507,111 @@ summary:focus-visible {
 .site-footer a:hover {
     color: var(--color-primary);
     text-decoration-color: var(--color-primary);
+}
+
+/* Responsive Adjustments (Moved to end to override other styles) */
+@media (max-width: 768px) {
+
+    /* 1. Header & Navigation */
+    .site-header {
+        padding: 0.5rem 0;
+    }
+
+    .header-container {
+        flex-wrap: wrap;
+        gap: 0.5rem;
+        /* Tighter gap */
+    }
+
+    .logo {
+        white-space: nowrap;
+        font-size: 1.1rem;
+        flex-shrink: 0;
+        /* Prevent logo shrinking */
+    }
+
+    .logo-icon {
+        width: 32px;
+        height: 32px;
+    }
+
+    .site-nav {
+        gap: 0.75rem;
+        width: 100%;
+        justify-content: center;
+    }
+
+    /* 2. Typography scaling */
+    h1 {
+        font-size: clamp(1.75rem, 6vw, 2.5rem);
+        line-height: 1.1;
+    }
+
+    h2 {
+        font-size: clamp(1.5rem, 5vw, 2rem);
+    }
+
+    h3 {
+        font-size: 1.25rem;
+    }
+
+    .hero p.hero-text {
+        font-size: 1rem;
+        line-height: 1.5;
+    }
+
+    /* 3. Video section */
+    .video-grid {
+        grid-template-columns: 1fr !important;
+        /* Force 1 column significantly */
+    }
+
+    /* 4. Spacing & touch targets */
+    .btn,
+    .site-nav a,
+    summary,
+    .contact-strip a,
+    .site-footer a {
+        min-height: 44px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .site-nav a {
+        padding: 0.25rem 0.5rem;
+    }
+
+    summary {
+        padding: 1rem;
+    }
+
+    .faq-grid {
+        gap: 1.5rem;
+    }
+
+    .bottom-cta .btn {
+        margin-top: 1rem;
+    }
+
+    .process-steps,
+    .service-details {
+        grid-template-columns: 1fr;
+    }
+
+    /* 5. Footer */
+    .site-footer .container {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 1.5rem;
+    }
+
+    .site-footer a {
+        margin-bottom: 0;
+    }
+
+    .site-footer p {
+        margin-top: 0;
+    }
 }
