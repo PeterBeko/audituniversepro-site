@@ -401,7 +401,42 @@ details[open] summary::after {
     font-size: 0.875rem;
 }
 
+.footer-top {
+    display: flex;
+    justify-content: center;
+    gap: 4rem;
+    flex-wrap: wrap;
+    margin-bottom: 2rem;
+    text-align: left;
+}
 
+.footer-col {
+    min-width: 220px;
+}
+
+.footer-col strong {
+    display: block;
+    margin-bottom: 0.75rem;
+    color: var(--color-text-main);
+    font-size: 1rem;
+}
+
+.social-link {
+    display: inline-flex;
+    align-items: center;
+    justify-content: flex-start;
+    color: var(--color-primary);
+}
+
+.social-link:hover {
+    color: var(--color-primary-hover);
+}
+
+.social-icon {
+    width: 24px;
+    height: 24px;
+    fill: currentColor;
+}
 
 a:focus-visible,
 .btn:focus-visible,
@@ -530,10 +565,7 @@ summary:focus-visible {
         /* Prevent logo shrinking */
     }
 
-    .logo-icon {
-        width: 32px;
-        height: 32px;
-    }
+
 
     .site-nav {
         gap: 0.75rem;
