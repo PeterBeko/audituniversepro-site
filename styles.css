@@ -163,7 +163,7 @@ p {
 
 /* Hero Section */
 .hero {
-    background-image: linear-gradient(rgba(255,255,255,0.70), rgba(255,255,255,0.70)), url("assets/background_3.png");
+    background-image: linear-gradient(rgba(255,255,255,0.60), rgba(255,255,255,0.60)), url("assets/background_3.png");
     background-repeat: no-repeat;
     background-position: center;
     background-size: cover;
@@ -652,3 +652,4 @@ summary:focus-visible {
     }
 
 }
+
