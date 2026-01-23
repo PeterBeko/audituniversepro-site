@@ -163,7 +163,7 @@ p {
 
 /* Hero Section */
 .hero {
-    background-image: linear-gradient(rgba(255,255,255,0.60), rgba(255,255,255,0.60)), url("assets/background_3.png");
+    background-image: linear-gradient(rgba(255,255,255,0.80), rgba(255,255,255,0.80)), url("assets/background_3.png");
     background-repeat: no-repeat;
     background-position: center;
     background-size: cover;
@@ -171,6 +171,35 @@ p {
     padding: 5rem 0;
     text-align: center;
     border-bottom: 1px solid var(--color-border);
+}
+
+.page-meta {
+    display: flex;
+    justify-content: center;
+    gap: 0.75rem;
+    flex-wrap: wrap;
+    margin: 0 auto 1.25rem;
+    color: var(--color-text-muted);
+    font-size: 0.95rem;
+}
+
+.page-meta strong {
+    color: var(--color-text-main);
+    font-weight: 600;
+}
+
+.author-link {
+    color: var(--color-primary);
+    text-decoration: underline;
+    text-underline-offset: 4px;
+}
+
+.author-link:hover {
+    color: var(--color-primary-hover);
+}
+
+.author-role {
+    color: var(--color-text-muted);
 }
 
 .hero p.hero-subtitle {
@@ -650,6 +679,4 @@ summary:focus-visible {
     .site-footer p {
         margin-top: 0;
     }
-
 }
-
