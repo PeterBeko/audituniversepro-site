@@ -162,6 +162,10 @@ p {
 }
 
 /* Deliverables */
+.deliverables-section {
+    background-color: rgba(255,255,255,0.50);
+}
+
 .deliverables {
     list-style: none;
     max-width: var(--text-reading-width);
@@ -178,7 +182,25 @@ p {
 
 /* GEO Clarity */
 .geo-clarity {
-    margin-top: 1rem;
+    margin-top: 0;
+    padding-top: 1rem;
+    background-color: #7ab6b6;
+    position: relative;
+    background-image:
+        linear-gradient(to bottom, rgba(255,255,255,0.50), rgba(255,255,255,0) 84px),
+        linear-gradient(to top,    rgba(255,255,255,0.50), rgba(255,255,255,0) 84px),
+        linear-gradient(to right,  rgba(255,255,255,0.50), rgba(255,255,255,0) 12%, rgba(255,255,255,0) 88%, rgba(255,255,255,0.50));
+}
+
+.geo-clarity::before {
+    content: "";
+    position: absolute;
+    left: 0;
+    right: 0;
+    top: -84px;
+    height: 84px;
+    pointer-events: none;
+    background: linear-gradient(to bottom, rgba(255,255,255,0.50), rgba(255,255,255,0));
 }
 
 .geo-clarity p {
@@ -272,7 +294,23 @@ p {
 /* Common Process Section */
 .common-process {
     padding: 4rem 0;
-    background-color: var(--color-bg);
+    background-color: #7ab6b6;
+    position: relative;
+    background-image:
+        linear-gradient(to bottom, rgba(255,255,255,0.50), rgba(255,255,255,0) 84px),
+        linear-gradient(to top,    rgba(255,255,255,0.50), rgba(255,255,255,0) 84px),
+        linear-gradient(to right,  rgba(255,255,255,0.50), rgba(255,255,255,0) 12%, rgba(255,255,255,0) 88%, rgba(255,255,255,0.50));
+}
+
+.common-process::before {
+    content: "";
+    position: absolute;
+    left: 0;
+    right: 0;
+    top: -84px;
+    height: 84px;
+    pointer-events: none;
+    background: linear-gradient(to bottom, rgba(255,255,255,0.50), rgba(255,255,255,0));
 }
 
 .section-title {
@@ -575,7 +613,23 @@ summary:focus-visible {
 /* Video Section */
 #videok {
     padding: 4rem 0;
-    background-color: var(--color-bg);
+    background-color: #7ab6b6;
+    position: relative;
+    background-image:
+        linear-gradient(to bottom, rgba(255,255,255,0.50), rgba(255,255,255,0) 84px),
+        linear-gradient(to top,    rgba(255,255,255,0.50), rgba(255,255,255,0) 84px),
+        linear-gradient(to right,  rgba(255,255,255,0.50), rgba(255,255,255,0) 12%, rgba(255,255,255,0) 88%, rgba(255,255,255,0.50));
+}
+
+#videok::before {
+    content: "";
+    position: absolute;
+    left: 0;
+    right: 0;
+    top: -84px;
+    height: 84px;
+    pointer-events: none;
+    background: linear-gradient(to bottom, rgba(255,255,255,0.50), rgba(255,255,255,0));
 }
 
 .video-grid {
