@@ -1,179 +1,118 @@
-const ALLOWED_ORIGINS = new Set([
-  "https://audituniversepro.com",
-  "https://www.audituniversepro.com",
-  "https://audituniversepro-site.pages.dev",
-  "http://localhost:8000",
-  "http://127.0.0.1:8000",
-  "http://localhost:8788",
-  "http://127.0.0.1:8788",
-]);
+export async function onRequest(context) {
+  const { request, env } = context;
 
-function normalizeStr(v, maxLen = 4000) {
-  if (v === undefined || v === null) return "";
-  const s = String(v).trim();
-  return s.length > maxLen ? s.slice(0, maxLen) : s;
-}
-
-function isValidEmail(email) {
-  // Simple, practical validation
-  return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
-}
-
-function getAllowedOrigin(req) {
-  const origin = req.headers.get("Origin");
-  if (!origin) return ""; // same-origin / server-to-server
-  return ALLOWED_ORIGINS.has(origin) ? origin : "";
-}
-
-function jsonResponse(payload, { status = 200, origin = "" } = {}) {
-  const headers = new Headers({
-    "Content-Type": "application/json; charset=utf-8",
-    "Cache-Control": "no-store",
-  });
-
-  if (origin) {
-    headers.set("Access-Control-Allow-Origin", origin);
-    headers.set("Vary", "Origin");
-  }
-
-  return new Response(JSON.stringify(payload), { status, headers });
-}
-
-function corsPreflight(origin) {
-  const headers = new Headers({
-    "Cache-Control": "no-store",
+  const origin = request.headers.get("Origin") || "";
+  const corsHeaders = {
+    "Access-Control-Allow-Origin": origin || "*",
     "Access-Control-Allow-Methods": "POST, OPTIONS",
     "Access-Control-Allow-Headers": "Content-Type",
     "Access-Control-Max-Age": "86400",
-  });
+    "Vary": "Origin",
+  };
 
-  if (origin) {
-    headers.set("Access-Control-Allow-Origin", origin);
-    headers.set("Vary", "Origin");
-  }
-
-  return new Response(null, { status: 204, headers });
-}
-
-async function readBody(request) {
-  const ct = request.headers.get("content-type") || "";
-  if (ct.includes("application/json")) {
-    return await request.json();
-  }
-  // supports application/x-www-form-urlencoded and multipart/form-data
-  const fd = await request.formData();
-  const obj = {};
-  for (const [k, v] of fd.entries()) obj[k] = v;
-  return obj;
-}
-
-export async function onRequest(context) {
-  const { request, env } = context;
-  const origin = getAllowedOrigin(request);
+  const json = (obj, status = 200) =>
+    new Response(JSON.stringify(obj), {
+      status,
+      headers: { "Content-Type": "application/json; charset=utf-8", ...corsHeaders },
+    });
 
   if (request.method === "OPTIONS") {
-    return corsPreflight(origin);
+    return new Response(null, { status: 204, headers: corsHeaders });
   }
 
   if (request.method !== "POST") {
-    return jsonResponse(
-      { ok: false, error: "Method not allowed" },
-      { status: 405, origin }
-    );
+    return json({ ok: false, error: "Method not allowed. Use POST." }, 405);
   }
 
+  // Parse body
+  const ct = (request.headers.get("Content-Type") || "").toLowerCase();
+  let data = {};
   try {
-    const body = await readBody(request);
+    if (ct.includes("application/json")) {
+      data = await request.json();
+    } else if (ct.includes("application/x-www-form-urlencoded")) {
+      const txt = await request.text();
+      data = Object.fromEntries(new URLSearchParams(txt));
+    } else if (ct.includes("multipart/form-data")) {
+      const fd = await request.formData();
+      data = Object.fromEntries(fd.entries());
+    } else {
+      // fallback
+      const txt = await request.text();
+      data = Object.fromEntries(new URLSearchParams(txt));
+    }
+  } catch {
+    data = {};
+  }
 
-    const name = normalizeStr(body.name, 200);
-    const email = normalizeStr(body.email, 200).toLowerCase();
-    const website = normalizeStr(body.website, 500);
-    const message = normalizeStr(body.message, 4000);
+  const str = (v) => (v == null ? "" : String(v)).trim();
 
-    const consentRaw = body.consent;
-    const consent =
-      consentRaw === true ||
-      consentRaw === "true" ||
-      consentRaw === "1" ||
-      consentRaw === 1 ||
-      consentRaw === "on";
+  // Honeypot
+  const hp = str(data.hp || data.company);
+  if (hp) {
+    return json({ ok: true });
+  }
 
-    if (!email || !isValidEmail(email)) {
-      return jsonResponse(
-        { ok: false, error: "Invalid email" },
-        { status: 400, origin }
-      );
+  const name = str(data.name).slice(0, 120);
+  const email = str(data.email).slice(0, 200);
+  const website = str(data.website).slice(0, 300);
+  const message = str(data.message).slice(0, 3000);
+  const source_path = str(data.source_path).slice(0, 500);
+  const user_agent = str(request.headers.get("User-Agent")).slice(0, 400);
+
+  const consentRaw = str(data.consent).toLowerCase();
+  const consent = ["1", "true", "on", "yes"].includes(consentRaw) ? 1 : 0;
+
+  if (!email) return json({ ok: false, error: "Email is required." }, 400);
+  if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+    return json({ ok: false, error: "Invalid email format." }, 400);
+  }
+  if (!consent) return json({ ok: false, error: "Consent is required." }, 400);
+
+  // Insert into D1
+  try {
+    if (!env.LEADS_DB) {
+      return json({ ok: false, error: "Server not configured (LEADS_DB missing)." }, 500);
     }
 
-    // GDPR-friendly: store only if consent is explicitly given
-    if (!consent) {
-      return jsonResponse(
-        { ok: false, error: "Consent required" },
-        { status: 400, origin }
-      );
-    }
-
-    let source_path = normalizeStr(body.source_path, 500);
-    if (!source_path) {
-      const ref = request.headers.get("Referer") || "";
-      try {
-        if (ref) source_path = new URL(ref).pathname || "";
-      } catch (_) {}
-      if (!source_path) source_path = new URL(request.url).pathname || "";
-    }
-
-    const user_agent = normalizeStr(request.headers.get("User-Agent") || "", 500);
-
-    if (!env || !env.LEADS_DB) {
-      return jsonResponse(
-        { ok: false, error: "Server misconfiguration (LEADS_DB missing)" },
-        { status: 500, origin }
-      );
-    }
-
-    // Insert into D1
     await env.LEADS_DB.prepare(
       `INSERT INTO leads (name, email, website, message, consent, source_path, user_agent)
        VALUES (?, ?, ?, ?, ?, ?, ?)`
-    )
-      .bind(name, email, website, message, 1, source_path, user_agent)
-      .run();
-
-    // Optional: forward to Make webhook
-    const hook = (env.LEAD_WEBHOOK_URL || "").trim();
-    let webhook_sent = false;
-
-    if (hook) {
-      try {
-        await fetch(hook, {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            name,
-            email,
-            website,
-            message,
-            consent: true,
-            source_path,
-            user_agent,
-            ts: new Date().toISOString(),
-          }),
-        });
-        webhook_sent = true;
-      } catch (e) {
-        console.warn("LEAD_WEBHOOK_URL fetch failed:", e);
-      }
-    }
-
-    return jsonResponse(
-      { ok: true, webhook_sent },
-      { status: 200, origin }
-    );
-  } catch (err) {
-    console.error("Lead handler error:", err);
-    return jsonResponse(
-      { ok: false, error: "Server error" },
-      { status: 500, origin }
-    );
+    ).bind(name || null, email, website || null, message || null, consent, source_path || null, user_agent || null).run();
+  } catch (e) {
+    return json({ ok: false, error: "Database insert failed." }, 500);
   }
+
+  // Forward to Make (best-effort)
+  const webhook = str(env.LEAD_WEBHOOK_URL);
+  if (webhook) {
+    const ip =
+      request.headers.get("cf-connecting-ip") ||
+      request.headers.get("x-forwarded-for") ||
+      "";
+
+    const payload = {
+      created_at: new Date().toISOString(),
+      name,
+      email,
+      website,
+      message,
+      consent: !!consent,
+      source_path,
+      user_agent,
+      ip,
+    };
+
+    try {
+      await fetch(webhook, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload),
+      });
+    } catch {
+      // ignore forwarding errors
+    }
+  }
+
+  return json({ ok: true });
 }
