@@ -71,8 +71,7 @@
                 <a href="#hogyan-dolgozunk">Hogyan dolgozunk?</a>
                 <a href="#szolgaltatasok">Szolgáltatások</a>
                 <a href="#gyik">GYIK</a>
-                <a href="mailto:info@audituniversepro.com?subject=Audit%20konzultáció%20kérése"
-                    class="btn btn-sm">Kapcsolat</a>
+                <a href="#kapcsolat" class="btn btn-sm js-lead-cta" data-lead-source="nav">Kapcsolat</a>
             </nav>
         </div>
     </header>
@@ -85,8 +84,7 @@
                 <p class="hero-subtitle">Biztonságos, érthető és auditált weboldalak.</p>
                 <p class="hero-text">SEO, GEO, jogi és WCAG audit saját elemző szoftverrel. Átlátható riport, pontszámok
                     és priorizált javítási javaslatok a weboldaladhoz.</p>
-                <a href="mailto:info@audituniversepro.com?subject=Audit%20konzultáció%20kérése"
-                    class="btn btn-primary">Audit konzultáció kérése</a>
+                <a href="#kapcsolat" class="btn btn-primary js-lead-cta" data-lead-source="hero">Audit konzultáció kérése</a>
             </div>
         </section>
 
@@ -519,8 +517,7 @@
             <div class="container text-center">
                 <h2>Tegye rendbe weboldalát még ma!</h2>
                 <p>Biztonság, láthatóság és megfelelőség egy helyen.</p>
-                <a href="mailto:info@audituniversepro.com?subject=Audit%20konzultáció%20kérése"
-                    class="btn btn-primary">Audit konzultáció kérése</a>
+                <a href="#kapcsolat" class="btn btn-primary js-lead-cta" data-lead-source="bottom-cta">Audit konzultáció kérése</a>
             </div>
         </section>
 
@@ -528,12 +525,53 @@
         <section class="contact-strip" id="kapcsolat">
             <div class="container text-center">
                 <h2>Kapcsolat</h2>
-                <p>
-                    Írj nekünk:
-                    <a href="mailto:info@audituniversepro.com?subject=Audit%20konzultáció%20kérése">
-                        info@audituniversepro.com
-                    </a>
-                </p>
+                <div class="contact-card">
+                    <p>Töltse ki az űrlapot, és 1 munkanapon belül visszajelzünk.</p>
+                    <form id="leadForm" class="lead-form">
+                        <input type="hidden" name="source_path" id="lead_source_path" value="/#kapcsolat">
+                        
+                        <div class="form-grid">
+                            <div class="form-field">
+                                <label for="lead_name">Név (opcionális)</label>
+                                <input type="text" name="name" id="lead_name" maxlength="120">
+                            </div>
+                            
+                            <div class="form-field">
+                                <label for="lead_email">Email <span aria-label="kötelező mező">*</span></label>
+                                <input type="email" name="email" id="lead_email" required maxlength="200">
+                            </div>
+                            
+                            <div class="form-field">
+                                <label for="lead_website">Weboldal (opcionális)</label>
+                                <input type="url" name="website" id="lead_website" maxlength="300">
+                            </div>
+                            
+                            <div class="form-field">
+                                <label for="lead_message">Üzenet (opcionális)</label>
+                                <textarea name="message" id="lead_message" rows="4" maxlength="3000"></textarea>
+                            </div>
+                        </div>
+                        
+                        <div class="form-field">
+                            <label class="checkbox-label">
+                                <input type="checkbox" name="consent" id="lead_consent" value="true" required>
+                                <span>Elfogadom az adatkezelési tájékoztatót <span aria-label="kötelező mező">*</span></span>
+                            </label>
+                        </div>
+                        
+                        <div class="honeypot">
+                            <label for="lead_company">Company (ne töltsd ki)</label>
+                            <input type="text" name="company" id="lead_company" autocomplete="off">
+                        </div>
+                        
+                        <button type="submit" id="leadSubmit" class="btn btn-primary">Üzenet küldése</button>
+                        <p id="leadStatus" class="form-status" role="status" aria-live="polite"></p>
+                    </form>
+                    <p class="fallback-contact">
+                        Vagy írj nekünk e-mailt: 
+                        <a href="mailto:info@audituniversepro.com?subject=Audit%20konzultáció%20kérése">info@audituniversepro.com</a>
+                    </p>
+                </div>
             </div>
         </section>
 
@@ -593,6 +631,100 @@
         </div>
     </footer>
 
+
+    <script>
+        // Set initial source path
+        document.getElementById('lead_source_path').value = location.pathname + '#kapcsolat';
+        
+        // Handle CTA clicks
+        document.querySelectorAll('.js-lead-cta').forEach(link => {
+            link.addEventListener('click', function(e) {
+                const source = this.dataset.leadSource;
+                const newPath = location.pathname + '#kapcsolat?cta=' + source;
+                document.getElementById('lead_source_path').value = newPath;
+                
+                // Focus first input after scroll
+                setTimeout(() => {
+                    const firstNameInput = document.getElementById('lead_name');
+                    if (firstNameInput) {
+                        firstNameInput.focus();
+                    }
+                }, 350);
+            });
+        });
+        
+        // Handle form submission
+        document.getElementById('leadForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            const statusEl = document.getElementById('leadStatus');
+            const submitBtn = document.getElementById('leadSubmit');
+            
+            // Client-side validation
+            const email = document.getElementById('lead_email').value.trim();
+            const consent = document.getElementById('lead_consent').checked;
+            
+            if (!email) {
+                statusEl.textContent = 'Kérjük, adja meg az email címét.';
+                statusEl.className = 'form-status error';
+                document.getElementById('lead_email').focus();
+                return;
+            }
+            
+            if (!consent) {
+                statusEl.textContent = 'Az adatkezelés elfogadása kötelező.';
+                statusEl.className = 'form-status error';
+                document.getElementById('lead_consent').focus();
+                return;
+            }
+            
+            // Prepare payload
+            const formData = new FormData(this);
+            const payload = {
+                name: formData.get('name') || '',
+                email: formData.get('email'),
+                website: formData.get('website') || '',
+                message: formData.get('message') || '',
+                consent: formData.get('consent') === 'true',
+                source_path: formData.get('source_path'),
+                company: formData.get('company') || ''
+            };
+            
+            // Disable submit button
+            submitBtn.disabled = true;
+            submitBtn.textContent = 'Küldés...';
+            statusEl.textContent = '';
+            statusEl.className = 'form-status';
+            
+            try {
+                const response = await fetch('/api/lead', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(payload)
+                });
+                
+                const result = await response.json();
+                
+                if (result.ok) {
+                    statusEl.textContent = 'Üzenetét sikeresen elküldtük! 1 munkanapon belül visszajelzünk.';
+                    statusEl.className = 'form-status success';
+                    this.reset();
+                    document.getElementById('lead_source_path').value = location.pathname + '#kapcsolat';
+                } else {
+                    statusEl.textContent = result.error || 'Hiba történt a küldés során. Kérjük, próbálja újra.';
+                    statusEl.className = 'form-status error';
+                }
+            } catch (error) {
+                statusEl.textContent = 'Hálózati hiba történt. Kérjük, próbálja újra később.';
+                statusEl.className = 'form-status error';
+            } finally {
+                submitBtn.disabled = false;
+                submitBtn.textContent = 'Üzenet küldése';
+            }
+        });
+    </script>
 
 </body>
 
