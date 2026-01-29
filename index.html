@@ -543,7 +543,7 @@
                             
                             <div class="form-field">
                                 <label for="lead_website">Weboldal (opcionális)</label>
-                                <input type="url" name="website" id="lead_website" maxlength="300">
+                                <input type="text" name="website" id="lead_website" maxlength="300" inputmode="url" autocomplete="url" placeholder="primesteakhouse.hu">
                             </div>
                             
                             <div class="form-field">
@@ -680,10 +680,19 @@
             
             // Prepare payload
             const formData = new FormData(this);
+            let websiteRaw = (formData.get('website') || '').trim();
+            let websiteNorm = websiteRaw;
+            if (websiteNorm) {
+                // ha nincs séma, tegyél elé https://
+                if (!/^https?:\/\//i.test(websiteNorm)) {
+                    websiteNorm = 'https://' + websiteNorm.replace(/^\/+/, '');
+                }
+            }
+            
             const payload = {
                 name: formData.get('name') || '',
                 email: formData.get('email'),
-                website: formData.get('website') || '',
+                website: websiteNorm,
                 message: formData.get('message') || '',
                 consent: formData.get('consent') === 'true',
                 source_path: formData.get('source_path'),
